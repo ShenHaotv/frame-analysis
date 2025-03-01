@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-from .utils import prepare_graph_inputs
-from .spatial_digraph import SpatialDiGraph
-from .visualization import Vis
-from .cross_validation import run_cv
-from .digraphstats import Digraphstats
+from frame.utils import prepare_graph_inputs
+from frame.spatial_digraph import SpatialDiGraph
+from frame.visualization import Vis
+from frame.cross_validation import run_cv
+from frame.digraphstats import Digraphstats
 
 """To get the genotype file, please download 1960_SNPs.str file from the dataset from https://data.mendeley.com/datasets/w2tykkj77w/1, dataset 1, and do the mean value imputation"""
 
