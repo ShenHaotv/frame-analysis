@@ -68,7 +68,6 @@ sp_digraph.fit(lamb=lamb_opt,
                logc_init=logc,
                )
 
-
 projection = ccrs.Mercator()
 fig, axs= plt.subplots(2, 4, figsize=(16, 6), dpi=300,
                         subplot_kw={'projection': projection})
@@ -85,9 +84,8 @@ v = Vis(axs[0,0], sp_digraph, projection=projection, edge_width=1,
         mutation_scale=6)
 
 v.digraph_wrapper(axs, node_scale=[5, 5, 5])
-
-
 plt.subplots_adjust(hspace=0.2)
+plt.show()
 
 plt.figure(figsize=(8, 6))
 plt.plot(np.log10(lamb_grid), cv, 'bo')  
