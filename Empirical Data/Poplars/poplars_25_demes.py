@@ -9,13 +9,16 @@ from frame.digraphstats import Digraphstats
 
 """To get the genotype file, please download data from https://datadryad.org/dataset/doi:10.5061/dryad.7s848 and process the data using the procedure in https://github.com/elundgre/gene-flow-inference/tree/master/poplars"""
 
-"""Please use poplars.coord and grid_220"""
-
+"""Please use poplars.coord and grid_440"""
 outer, edges, grid, _ = prepare_graph_inputs(coord=coord,
                                              ggrid=grid_path,
-                                             buffer=1)
+                                             buffer=4 )
 
-grid_delete=[11,16,17,22,28,34,40,47,53]
+grid[2,:]=0.5*(grid[0,:]+grid[6,:])
+grid[9,:]=0.5*(grid[6,:]+grid[14,:])
+grid[18,:]=0.5*(grid[14,:]+grid[23,:])
+
+grid_delete=[5,13,17,22]
 mask = np.ones(len(grid), dtype=bool)
 mask[grid_delete] = False
 grid_new = grid[mask]
@@ -36,7 +39,6 @@ lamb_grid = np.geomspace(1e-3, 1e3,13)[::-1]
 cv,node_train_idxs=run_cv(sp_digraph,
                           lamb_grid,
                           lamb_warmup=lamb_warmup,
-                          n_folds=10,
                           factr=1e10,
                           random_state=500,
                           outer_verbose=True,
@@ -54,7 +56,6 @@ else:
 cv_fine,node_train_idxs_fine=run_cv(sp_digraph,
                                     lamb_grid_fine,
                                     lamb_warmup=lamb_warmup,
-                                    n_folds=10,
                                     factr=1e10,
                                     random_state=500,
                                     outer_verbose=True,
@@ -109,4 +110,9 @@ digraphstats.z_score_distribution(ax)
 fig, ax = plt.subplots(1, 1, figsize=(6, 5), dpi=300)
 digraphstats.draw_heatmap(ax)
 plt.show()
+
+fig, axs = plt.subplots(1, 3, figsize=(18, 5), dpi=300)
+digraphstats.fitting_wrapper(axs)
+plt.show()
+
 
