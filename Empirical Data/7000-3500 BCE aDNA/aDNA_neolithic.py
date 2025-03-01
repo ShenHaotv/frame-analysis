@@ -7,7 +7,7 @@ from .visualization import Vis
 from .cross_validation import run_cv
 from .digraphstats import Digraphstats
 
-"""To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary note sequentially, delete the repeating samples (for this step, we suggest using the neolithic_individual_list), and do the mean value imputation """
+"""To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary, delete the repeating samples (for this step, we suggest using the neolithic_individual_list), and do the mean value imputation """
 
 """For the coord file, please use neolithic.coord, for the grid_path, please use grid_440"""
 
@@ -46,8 +46,6 @@ additional_edges=np.array([[9,17]])
 
 updated_edges=np.vstack((edges,additional_edges))
 
-#updated_edges=edges
-
 edges_to_delete =  np.array([[2,3],
                             [4,7],
                             [7,9],
@@ -77,8 +75,6 @@ valid_edges = np.array([edge for edge in edges_new-1 if all(node in mapping for 
 edges_new = np.vectorize(mapping.get)(valid_edges)+1
 
 sp_digraph = SpatialDiGraph(genotypes, coord, grid_new, edges_new)
-
-projection = ccrs.EquidistantConic(central_longitude=40)
 
 lamb_warmup = 1e3
 
