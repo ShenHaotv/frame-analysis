@@ -1,11 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-from .utils import prepare_graph_inputs
-from .spatial_digraph import SpatialDiGraph
-from .visualization import Vis
-from .cross_validation import run_cv
-from .digraphstats import Digraphstats
+from frame.utils import prepare_graph_inputs
+from frame.spatial_digraph import SpatialDiGraph
+from frame.visualization import Vis
+from frame.cross_validation import run_cv
+from frame.digraphstats import Digraphstats
 
 """To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary, delete the repeating samples (for this step, we suggest using the steppe_individual_list), and do the mean value imputation """
 
@@ -165,6 +165,3 @@ digraphstats.z_score_distribution(ax)
 fig, ax = plt.subplots(1, 1, figsize=(6, 5), dpi=300)
 digraphstats.draw_heatmap(ax)
 plt.show()
-
-
-
