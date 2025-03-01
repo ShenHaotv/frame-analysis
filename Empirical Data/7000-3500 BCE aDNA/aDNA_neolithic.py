@@ -145,7 +145,6 @@ plt.plot(np.log10(lamb_grid_fine), cv_fine, 'bo')
 plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda})$")
 plt.ylabel('CV Error')
 
-
 digraphstats = Digraphstats(sp_digraph)
 
 fig, ax = plt.subplots(1, 1, figsize=(6, 5), dpi=300)
