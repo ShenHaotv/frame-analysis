@@ -128,7 +128,6 @@ sp_digraph.fit(lamb=lamb_opt,
 
 projection = ccrs.Mercator()
 
-
 fig, axs= plt.subplots(2, 4, figsize=(20,6), dpi=300,
                         subplot_kw={'projection': projection})
 
