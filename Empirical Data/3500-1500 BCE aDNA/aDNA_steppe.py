@@ -9,77 +9,9 @@ from frame.digraphstats import Digraphstats
 
 """To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary, delete the repeating samples (for this step, we suggest using the steppe_individual_list), and do the mean value imputation """
 
-"""For the coord file, please use steppe.coord, for the grid_path, please use grid_440"""
+"""For the coord, grid, edges file, please use steppe.coord, for the grid_path, """
 
-outer, edges, grid, _ = prepare_graph_inputs(coord=coord,
-                                             ggrid=grid_path,
-                                             buffer=2,)
-
-grid[0,:]=grid[0,:]+[-1,-1]
-grid[1,0]-=1
-grid[2,:]=grid[2,:]+[2,-1]
-grid[4,0]+=1
-grid[6,0]+=1
-grid[7,0]+=2
-grid[8,:]=grid[8,:]+[4.5,-1.5]
-grid[9,:]=grid[9,:]+[1,1]
-
-grid[20,:]=grid[10,:]+[0.5,-1]
-grid[10,:]=grid[10,:]+[1.5,1]
-grid[11,1]-=0.5
-grid[12,0]+=1
-grid[15,1]+=1
-grid[16,1]+=1
-grid[19,1]-=1
-
-grid[23,1]+=0.5
-grid[27,0]+=1.5
-grid[28,:]=grid[28,:]+[-0.5,0.5]
-grid[32,1]+=2
-grid[38,1]+=1
-grid[47,:]=grid[47,:]+[-1,0.5]
-
-grid_delete=[13,21,26,31,35,40,41,42,43,51,55,59]
-mask = np.ones(len(grid), dtype=bool)
-mask[grid_delete] = False
-grid_new= grid[mask]
-
-additional_edges=np.array([[9,16],[11,21],[12,21],[13,21]])
-
-updated_edges=np.vstack((edges,additional_edges)
-
-edges_to_delete =  np.array([[2,3],
-                            [4,7],
-                            [7,9],
-                            [10,12],                         
-                            [11,13],
-                            [15,21],                            
-                            [16,23],
-                            [17,23],                           
-                            [23,28],                       
-                            [29,30],
-                            [29,34],
-                            [47,48],
-                            [56,64],
-                            [70,78],
-                            [71,78],
-                            [71,79]
- ])
-
-mask_new = np.array([not np.any(np.all(edge == edges_to_delete, axis=1)) for edge in updated_edges])
-
-
-edges_new=updated_edges[mask_new]
-
-# Creating a mapping of old indexes to new indexes
-mapping = {old_idx: new_idx for new_idx, old_idx in enumerate([i for i in range(len(grid)) if i not in grid_delete])}
-
-valid_edges = np.array([edge for edge in edges_new-1 if all(node in mapping for node in edge)])
-# Adjusting edges based on new indexes
-
-edges_new = np.vectorize(mapping.get)(valid_edges)+1
-
-sp_digraph = SpatialDiGraph(genotypes, coord, grid_new, edges_new)
+sp_digraph = SpatialDiGraph(genotypes, coord, grid, edges)
 
 lamb_warmup = 1e3
 
