@@ -9,72 +9,9 @@ from frame.digraphstats import Digraphstats
 
 """To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary, delete the repeating samples (for this step, we suggest using the neolithic_individual_list), and do the mean value imputation """
 
-"""For the coord file, please use neolithic.coord, for the grid_path, please use grid_440"""
+"""For the coord, grid, edges file, please use neolithic.coord, Grid_neolithic.csv and Edges_neolithic.csv"""
 
-outer, edges, grid, _ = prepare_graph_inputs(coord=coord,
-                                             ggrid=grid_path,
-                                             buffer=2,)
-
-grid[0,:]=grid[0,:]+[-1,-1]
-grid[1,0]-=1
-grid[2,:]=grid[2,:]+[2,-1]
-grid[4,0]+=1
-grid[6,0]+=1
-grid[7,0]+=2
-grid[8,:]=grid[8,:]+[4.5,-1.5]
-grid[9,:]=grid[9,:]+[1,1]
-
-grid[10,1]-=1.5
-grid[11,1]-=0.5
-grid[15,1]+=1
-grid[16,1]+=1
-grid[20,1]-=1
-
-grid[24,1]+=0.5
-grid[28,0]+=1.5
-grid[29,:]=grid[29,:]+[-0.5,0.5]
-grid[33,1]+=2
-grid[41,1]+=1
-grid[50,:]=grid[50,:]+[-1,0.5]
-
-grid_delete=[21,22,27,32,36,37,40,43,44,45,57]
-mask = np.ones(len(grid), dtype=bool)
-mask[grid_delete] = False
-grid_new= grid[mask]
-
-additional_edges=np.array([[9,17]])
-
-updated_edges=np.vstack((edges,additional_edges))
-
-edges_to_delete =  np.array([[2,3],
-                            [4,7],
-                            [7,9],
-                            [10,12],                                                    
-                            [17,24],
-                            [18,24],                           
-                            [24,29],                       
-                            [30,31],
-                            [30,35],
-                            [50,51],
-                            [57,65],
-                            [70,76],
-                            [71,76],
-                            [71,77]])
-
-mask_new = np.array([not np.any(np.all(edge == edges_to_delete, axis=1)) for edge in updated_edges])
-
-
-edges_new=updated_edges[mask_new]
-
-# Creating a mapping of old indexes to new indexes
-mapping = {old_idx: new_idx for new_idx, old_idx in enumerate([i for i in range(len(grid)) if i not in grid_delete])}
-
-valid_edges = np.array([edge for edge in edges_new-1 if all(node in mapping for node in edge)])
-# Adjusting edges based on new indexes
-
-edges_new = np.vectorize(mapping.get)(valid_edges)+1
-
-sp_digraph = SpatialDiGraph(genotypes, coord, grid_new, edges_new)
+sp_digraph = SpatialDiGraph(genotypes, coord, grid, edges)
 
 lamb_warmup = 1e3
 
