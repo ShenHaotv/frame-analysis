@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
-from frame.utils import prepare_graph_inputs
 from frame.spatial_digraph import SpatialDiGraph
 from frame.visualization import Vis
 from frame.cross_validation import run_cv
