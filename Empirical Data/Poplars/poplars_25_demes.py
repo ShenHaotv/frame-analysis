@@ -7,7 +7,7 @@ from frame.visualization import Vis
 from frame.cross_validation import run_cv
 from frame.digraphstats import Digraphstats
 
-"""To get the genotype file, please download data from https://datadryad.org/dataset/doi:10.5061/dryad.7s848 and process the data using the procedures in https://github.com/elundgre/gene-flow-inference/tree/master/poplars"""
+"""To get the genotype file, please download data from https://datadryad.org/dataset/doi:10.5061/dryad.7s848 and process the data using the procedure in https://github.com/elundgre/gene-flow-inference/tree/master/poplars"""
 
 """Please use poplars.coord and grid_440"""
 outer, edges, grid, _ = prepare_graph_inputs(coord=coord,
@@ -114,3 +114,5 @@ plt.show()
 fig, axs = plt.subplots(1, 3, figsize=(18, 5), dpi=300)
 digraphstats.fitting_wrapper(axs)
 plt.show()
+
+
