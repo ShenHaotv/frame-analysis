@@ -85,7 +85,7 @@ v = Vis(axs[0,0], sp_digraph, projection=projection, edge_width=1,
         cbar_font_size=5, cbar_ticklabelsize=5,
         cbar_width="30%",
         cbar_height="3.5%",
-        cbar_bbox_to_anchor=(0.05, 0.15, 1, 1), campass_bbox_to_anchor=(0, 0.075),
+        cbar_bbox_to_anchor=(0.05, 0.15), campass_bbox_to_anchor=(0, 0.075),
         campass_font_size=5,
         campass_radius=0.15,
         mutation_scale=6)
