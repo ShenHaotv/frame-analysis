@@ -1,3 +1,3 @@
 # frame-analysis
 
-Here we provide the complete data for simulations and empirical applications appeared in the FRAME paper. We also provide the code to reproduce the empirical results.
+Here we provide the complete data for simulations and empirical applications presented in the FRAME paper, along with the code necessary to reproduce all empirical results.
