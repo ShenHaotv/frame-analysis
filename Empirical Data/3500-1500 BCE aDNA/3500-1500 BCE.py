@@ -7,9 +7,9 @@ from frame.visualization import Vis
 from frame.cross_validation import run_cv
 from frame.digraphstats import Digraphstats
 
-"""To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary, delete the repeating samples (for this step, we suggest using the steppe_individual_list), and do the mean value imputation """
+"""To get the genotype file, please download the v62.0_1240k_public dataset from https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/FFIDCW, apply the filters we showed in the supplementary, delete the repeating samples (for this step, we suggest using the 3500-1500 BCE_individual_list), and do the mean value imputation """
 
-"""For the coord file, please use steppe.coord, for the grid_path, please use grid_440"""
+"""For the coord file, please use 3500-1500 BCE.coord, for the grid_path, please use grid_440"""
 
 outer, edges, grid, _ = prepare_graph_inputs(coord=coord,
                                              ggrid=grid_path,
