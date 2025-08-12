@@ -26,10 +26,10 @@ grid_new = grid[mask]
 # Creating a mapping of old indexes to new indexes
 mapping = {old_idx: new_idx for new_idx, old_idx in enumerate([i for i in range(len(grid)) if i not in grid_delete])}
 
-valid_edges = np.array([edge for edge in edges-1 if all(node in mapping for node in edge)])
+valid_edges = np.array([edge for edge in edges if all(node in mapping for node in edge)])
 # Adjusting edges based on new indexes
 
-edges_new = np.vectorize(mapping.get)(valid_edges)+1
+edges_new = np.vectorize(mapping.get)(valid_edges)
 
 sp_digraph = SpatialDiGraph(genotypes, coord, grid_new, edges_new)
 
