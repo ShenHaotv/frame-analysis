@@ -59,20 +59,20 @@ sp_digraph.fit(lamb_m=lamb_m_opt,
 
 projection = ccrs.Mercator()
 
-fig, axs= plt.subplots(4, 2, figsize=(8,9), dpi=300,
+fig, axs= plt.subplots(2, 4, figsize=(15, 7), dpi=300,
                         subplot_kw={'projection': projection})
 
 v = Vis(axs[0,0], sp_digraph, projection=projection, edge_width=1,
         edge_alpha=1, edge_zorder=100, sample_pt_size=5,
         obs_node_size=0.5, sample_pt_color="black",
-        cbar_font_size=5, cbar_ticklabelsize=8, 
-        cbar_bbox_to_anchor=(0.2, 0.13),   
-        compass_bbox_to_anchor=(0.15, 0.025),
-        compass_font_size=5,
-        compass_radius=0.15,
+        cbar_font_size=8,cbar_ticklabelsize=8, 
+        cbar_bbox_to_anchor=(0.4, -0.3, 1, 1),  
+        compass_radius=0.2,
+        compass_font_size=8,
+        compass_bbox_to_anchor=(0.4, -0.35),
         mutation_scale=6)
 
-v.digraph_wrapper_new(axs, node_scale=[5, 5, 5])
+v.digraph_wrapper(axs, node_scale=[5, 5, 5])
 plt.subplots_adjust(hspace=0.1)
 
 plt.figure(figsize=(8, 6))
