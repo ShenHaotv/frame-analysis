@@ -92,7 +92,6 @@ v = Vis(axs[0,0], sp_digraph, projection=projection, edge_width=1,
         mutation_scale=6)
 
 v.digraph_wrapper(axs, node_scale=[5, 5,10])
-plt.show()
 
 plt.figure(figsize=(8, 6))
 plt.plot(np.log10(lamb_m_grid), cv, 'bo')  
