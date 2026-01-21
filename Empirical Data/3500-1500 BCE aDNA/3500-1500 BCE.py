@@ -72,7 +72,6 @@ v = Vis(axs[0,0], sp_digraph, projection=projection, edge_width=1,
         mutation_scale=6)
 
 v.digraph_wrapper(axs, node_scale=[5, 5, 10])
-plt.subplots_adjust(hspace=0.1)
 plt.show()
 
 plt.figure(figsize=(8, 6))
