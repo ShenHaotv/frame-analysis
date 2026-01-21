@@ -30,7 +30,7 @@ edges_new = np.vectorize(mapping.get)(valid_edges)
 
 sp_digraph = SpatialDiGraph(genotypes, coord, grid_new, edges_new)
 
-lamb_grid = np.geomspace(1e-3, 1e3,13)[::-1]
+lamb_m_grid = np.geomspace(1e-3, 1e3,13)[::-1]
 lamb_m_warmup =1e3
 
 fr=1e10
@@ -95,9 +95,9 @@ v.digraph_wrapper(axs, node_scale=[5, 5,10])
 plt.show()
 
 plt.figure(figsize=(8, 6))
-plt.plot(np.log10(lamb_grid), cv, 'bo')  
-plt.plot(np.log10(lamb_grid_fine), cv_fine, 'bo')  
-plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda})$")
+plt.plot(np.log10(lamb_m_grid), cv, 'bo')  
+plt.plot(np.log10(lamb_m_grid_fine), cv_fine, 'bo')  
+plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda_m})$")
 plt.ylabel('CV Error')
 
 digraphstats = Digraphstats(sp_digraph)
