@@ -11,7 +11,6 @@ from frame.digraphstats import Digraphstats
 """For the coord, grid, edges file, please use 3500-1500 BCE.coord, 3500-1500 BCE_grid.csv and 3500-1500 BCE_edges.csv """
 
 lamb_m_warmup = 1e3
-
 lamb_m_grid = np.geomspace(1e-3,1e3,13)[::-1]
 
 cv_errs,node_train_idxs=run_cv(sp_digraph,
