@@ -10,66 +10,63 @@ from frame.digraphstats import Digraphstats
 
 """For the coord, grid, edges file, please use 7000-3500 BCE.coord, 7000-3500 BCE_grid.csv and 7000-3500 BCE_edges.csv"""
 
-sp_digraph = SpatialDiGraph(genotypes, coord, grid, edges)
+lamb_m_warmup = 1e3
+lamb_m_grid = np.geomspace(1e-3, 1e3,13)[::-1]
 
-lamb_warmup = 1e3
+fr=1e10
 
-lamb_grid = np.geomspace(1e-3,1e3,13)[::-1]
+cv_errs,node_train_idxs=run_cv(sp_digraph,
+                               n_folds=20,
+                               lamb_m_grid=lamb_m_grid,
+                               lamb_m_warmup=lamb_m_warmup,
+                               factr=fr,
+                               random_state=500)
 
-cv,node_train_idxs=run_cv(sp_digraph,
-                          lamb_grid,
-                          lamb_warmup=lamb_warmup,
-                          n_folds=20,
-                          factr=1e10,
-                          random_state=500,
-                          outer_verbose=True,
-                          inner_verbose=False,)
+if np.argmin(cv_errs)==0:
+   lamb_m_grid_fine=np.geomspace(lamb_m_grid[0],lamb_m_grid[1],7)[::-1]
 
-if np.argmin(cv)==0:
-   lamb_grid_fine=np.geomspace(lamb_grid[0],lamb_grid[1],7)[::-1]
-
-elif np.argmin(cv)==12:
-     lamb_grid_fine=np.geomspace(lamb_grid[11],lamb_grid[12], 12)[::-1]
+elif np.argmin(cv_errs)==12:
+     lamb_m_grid_fine=np.geomspace(lamb_m_grid[11],lamb_m_grid[12], 7)[::-1]
      
 else:
-    lamb_grid_fine=np.geomspace(lamb_grid[np.argmin(cv)-1],lamb_grid[np.argmin(cv)+1], 7)[::-1]
+    lamb_m_grid_fine=np.geomspace(lamb_m_grid[np.argmin(cv_errs)-1],lamb_m_grid[np.argmin(cv_errs)+1], 7)[::-1]
 
-cv_fine,node_train_idxs_fine=run_cv(sp_digraph,
-                                    lamb_grid_fine,
-                                    lamb_warmup=lamb_warmup,
-                                    n_folds=20,
-                                    factr=1e10,
-                                    random_state=500,
-                                    outer_verbose=True,
-                                    inner_verbose=False,
-                                    node_train_idxs=node_train_idxs)
+cv_errs_fine,node_train_idxs_fine=run_cv(sp_digraph, 
+                                         n_folds=20,
+                                         lamb_m_grid=lamb_m_grid_fine,
+                                         lamb_m_warmup=lamb_m_warmup,
+                                         factr=fr,
+                                         random_state=500,
+                                         outer_verbose=True,
+                                         inner_verbose=False,)
 
-lamb_opt=lamb_grid_fine[np.argmin(cv_fine)]
-lamb_opt=float("{:.3g}".format(lamb_opt))
+lamb_m_opt=lamb_m_grid_fine[np.argmin(cv_errs_fine)]
+lamb_m_opt=float("{:.3g}".format(lamb_m_opt))
 
-sp_digraph.fit(lamb=lamb_warmup, factr=1e10)
+sp_digraph.fit(lamb_m=lamb_m_warmup, factr=fr)
 logm = np.log(sp_digraph.m)
-logc = np.log(sp_digraph.c)
+logc=np.log(sp_digraph.c)
+trans_alpha=-np.log((1/sp_digraph.alpha)-1)
 
-sp_digraph.fit(lamb=lamb_opt,
+sp_digraph.fit(lamb_m=lamb_m_opt,
                factr=1e7,
                logm_init=logm,
                logc_init=logc,
-               )
+               trans_alpha_init=trans_alpha)
 
 projection = ccrs.Mercator()
 
-fig, axs= plt.subplots(2, 4, figsize=(15,6), dpi=300,
+fig, axs= plt.subplots(2, 4, figsize=(15, 7), dpi=300,
                         subplot_kw={'projection': projection})
 
 v = Vis(axs[0,0], sp_digraph, projection=projection, edge_width=1,
         edge_alpha=1, edge_zorder=100, sample_pt_size=5,
         obs_node_size=0.5, sample_pt_color="black",
-        cbar_font_size=5,cbar_ticklabelsize=8, 
-        cbar_bbox_to_anchor=(0.4, -0.3),   
-        campass_bbox_to_anchor=(0.4, -0.4),
-        campass_font_size=5,
-        campass_radius=0.2,
+        cbar_font_size=8,cbar_ticklabelsize=8, 
+        cbar_bbox_to_anchor=(0.4, -0.3, 1, 1),  
+        compass_radius=0.2,
+        compass_font_size=8,
+        compass_bbox_to_anchor=(0.4, -0.35),
         mutation_scale=6)
 
 v.digraph_wrapper(axs, node_scale=[5, 5, 5])
@@ -78,7 +75,7 @@ plt.subplots_adjust(hspace=0.1)
 plt.figure(figsize=(8, 6))
 plt.plot(np.log10(lamb_grid), cv, 'bo')  
 plt.plot(np.log10(lamb_grid_fine), cv_fine, 'bo')  
-plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda})$")
+plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda_m})$")
 plt.ylabel('CV Error')
 
 digraphstats = Digraphstats(sp_digraph)
