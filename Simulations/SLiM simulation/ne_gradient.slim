@@ -1,0 +1,126 @@
+// Continuous-space, nonWF, spatial gradient in carrying capacity (left > right)
+
+initialize() {
+    initializeSLiMModelType("nonWF");
+
+    // --- basic ecological / spatial parameters ---
+    defineConstant("K_MEAN", 240.0);   // mean carrying capacity per unit area
+    // Exponential gradient parameter
+    defineConstant("K_BETA", log(30));  // left is 250× right
+    defineConstant("S", 0.1);          // interaction & base dispersal scale
+    defineConstant("L", 4.0);          // mean lifetime at stationarity
+    defineConstant("W", 8.0);          // width & height (square landscape)
+
+    defineConstant("DISPERSAL_S", 2 * S);
+
+    defineConstant("WIDTH",  W);
+    defineConstant("HEIGHT", W);
+
+    // --- genetics: 1 chromosome, neutral ---
+    defineConstant("C", 1);
+    defineConstant("GC", 1e8);
+
+    defineConstant("OUTDIR", "");       // data storage
+    defineConstant("FPATH", OUTDIR + "/");
+
+    initializeSLiMOptions(dimensionality="xy");
+    initializeTreeSeq();
+
+    initializeMutationRate(0.0);
+    initializeMutationType("m1", 0.5, "f", 0.0);
+    initializeGenomicElementType("g1", m1, 1.0);
+    initializeRecombinationRate(1e-8);
+
+    pos = 0;
+    for (i in 1:C) {
+        initializeGenomicElement(g1, pos, pos + GC - 1);
+        pos = pos + GC;
+    }
+
+    // spatial interaction kernel (for competition + mating)
+    initializeInteractionType(1, "xy", reciprocal=T, maxDistance=S * 3.0);
+    i1.setInteractionFunction("n", 1.0, S);
+}
+
+// Exponentially decreasing K(x), left > right, spatial mean = K_MEAN
+function (float) K_of_x(float x) {
+    // x in [0, WIDTH]
+    beta = K_BETA;   // controls steepness (>0)
+    norm = beta / (1.0 - exp(-beta));
+    return K_MEAN * norm * exp(-beta * x / WIDTH);
+}
+
+// reproduction with unbiased dispersal
+reproduction() {
+    mate = i1.drawByStrength(individual, 1);
+    if (mate.size()) {
+        fecundity = 1.0 / L;
+
+        for (i in seqLen(rpois(1, fecundity))) {
+            offspring = subpop.addCrossed(individual, mate);
+
+            // unbiased step: mean 0 in both x and y
+            step = rnorm(2, 0.0, DISPERSAL_S);
+            pos = individual.spatialPosition + step;
+
+            offspring.setSpatialPosition(p1.pointReflected(pos));
+        }
+    }
+}
+
+// initial population
+1 late() {
+    // use mean K for initial N; equilibrium N should be ~area * K_MEAN
+    sim.addSubpop("p1", asInteger(0.8 * WIDTH * HEIGHT * K_MEAN));
+    p1.setSpatialBounds(c(0.0, 0.0, WIDTH, HEIGHT));
+
+    for (ind in p1.individuals) {
+        ind.setSpatialPosition(p1.pointUniform());
+    }
+
+    i1.evaluate(p1);
+}
+
+// density dependence with K(x)
+2: early() {
+    i1.evaluate(p1);
+
+    inds = p1.individuals;
+    competition = i1.totalOfNeighborStrengths(inds);
+
+    localK = K_of_x(inds.x);  // vectorized over individuals
+
+    inds.fitnessScaling =
+        2.0 / (1.0 + (L + 1.0) / (L - 1.0) * (competition / (localK * 2.0 * PI * S^2)));
+
+    // soft walls to keep individuals away from boundaries (optional)
+    inds.fitnessScaling =
+        pmin(0.9,
+             inds.fitnessScaling
+             * pmin(1.0, 5 * inds.x)
+             * pmin(1.0, 5 * (WIDTH  - inds.x))
+             * pmin(1.0, 5 * inds.y)
+             * pmin(1.0, 5 * (HEIGHT - inds.y)));
+}
+
+// keep interaction map updated
+late() {
+    i1.evaluate(p1);
+}
+
+// logging
+1: late() {
+    if ((sim.cycle % 200) == 0) {
+        cat(sim.cycle + " " + p1.individualCount);
+        catn(" " + clock());
+    }
+}
+
+// output at the end
+100000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_100000_30.trees")), simplify=T);
+    sim.simulationFinished();
+}
+ 
+
+

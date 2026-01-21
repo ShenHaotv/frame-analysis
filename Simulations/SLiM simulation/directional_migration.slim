@@ -1,0 +1,126 @@
+// Continuous-space, nonWF, biased dispersal left -> right
+
+initialize() {
+    initializeSLiMModelType("nonWF");
+
+    // --- basic ecological / spatial parameters ---
+    defineConstant("K", 200);      // carrying capacity per unit area (approx)
+    defineConstant("S", 0.1);      // interaction & base dispersal scale
+    defineConstant("L", 4);        // mean lifetime at stationarity
+    defineConstant("W", 8.0);      // width & height of simulated area (square)
+
+    // dispersal: we'll bias x > 0 => movement to the right
+    defineConstant("DISPERSAL_S", 2 * S);
+    defineConstant("BIAS", 0.1);  // mean step in x per reproduction (>0 is rightward)
+
+    // we keep a simple square geometry
+    defineConstant("WIDTH",  W);
+    defineConstant("HEIGHT", W);
+
+    // --- genetics: 1 chromosome, long enough for many SNPs later ---
+    defineConstant("C", 1);
+    defineConstant("GC", 1e8);     // genomic length; can be changed if needed
+
+    // where to write the .trees file
+    defineConstant("OUTDIR", "");  // data storage
+    defineConstant("FPATH", OUTDIR + "/");
+
+    initializeSLiMOptions(dimensionality = "xy");
+    initializeTreeSeq();
+
+    // no mutations during the forward run; we’ll add them later in msprime/tskit
+    initializeMutationRate(0.0);
+    initializeMutationType("m1", 0.5, "f", 0.0);
+    initializeGenomicElementType("g1", m1, 1.0);
+    initializeRecombinationRate(1e-8);
+
+    // cover the genome with neutral elements
+    pos = 0;
+    for (i in 1:C) {
+        initializeGenomicElement(g1, pos, pos + GC - 1);
+        pos = pos + GC;
+    }
+
+    // spatial interaction kernel (for competition and mate choice)
+    initializeInteractionType(1, "xy", reciprocal = T, maxDistance = S * 3);
+    i1.setInteractionFunction("n", 1.0, S);
+}
+
+// reproduction with biased dispersal
+reproduction() {
+    // choose nearest neighbor as mate
+    mate = i1.drawByStrength(individual, 1);
+    if (mate.size()) {
+        // expected offspring per time step for this parent
+        fecundity = 1.0 / L;
+
+        for (i in seqLen(rpois(1, fecundity))) {
+            offspring = subpop.addCrossed(individual, mate);
+
+            // biased step: N( mean = (BIAS, 0), sd = DISPERSAL_S )
+            // i.e., drift to the right in x
+            step = rnorm(2, c(BIAS, 0.0), DISPERSAL_S);
+            pos = individual.spatialPosition + step;
+
+            // reflect at boundaries (no hard wall mortality)
+            offspring.setSpatialPosition(p1.pointReflected(pos));
+        }
+    }
+}
+
+// create initial population in continuous space
+1 late() {
+    // starting total N ≈ 0.8 * area * K
+    sim.addSubpop("p1", asInteger(0.8 * WIDTH * HEIGHT * K));
+    p1.setSpatialBounds(c(0.0, 0.0, WIDTH, HEIGHT));
+
+    // uniform positions in the landscape
+    for (ind in p1.individuals) {
+        ind.setSpatialPosition(p1.pointUniform());
+    }
+
+    // first time we can evaluate interactions: population now exists
+    i1.evaluate(p1);
+}
+
+// density-dependent regulation (local N varies)
+2: early() {
+    // interaction used for density dependence -> evaluate here, for p1
+    i1.evaluate(p1);
+
+    inds = p1.individuals;
+    competition = i1.totalOfNeighborStrengths(inds);
+
+    // standard nonWF spatial logistic-ish regulation
+    inds.fitnessScaling =
+        2 / (1 + (L + 1) / (L - 1) * (competition / (K * 2 * PI * S^2)));
+
+    // soft walls: fitness goes to 0 near edges
+    inds.fitnessScaling =
+        pmin(0.9,
+             inds.fitnessScaling
+             * pmin(1.0, 5 * inds.x)
+             * pmin(1.0, 5 * (WIDTH  - inds.x))
+             * pmin(1.0, 5 * inds.y)
+             * pmin(1.0, 5 * (HEIGHT - inds.y)));
+}
+
+// keep interaction map up to date for reproduction
+late() {
+    // evaluate again so reproduction in the next tick can use up-to-date neighbors
+    i1.evaluate(p1);
+}
+
+// simple logging
+1: late() {
+    if ((sim.cycle % 200) == 0) {
+        cat(sim.cycle + " " + p1.individualCount);
+        catn(" " + clock());
+    }
+}
+
+// finish and write one tree sequence
+100000 late() {
+    sim.treeSeqOutput(paste0(c(FPATH, "pop_100000.trees")), simplify = T);
+    sim.simulationFinished();
+}
