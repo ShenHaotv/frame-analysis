@@ -78,7 +78,7 @@ plt.subplots_adjust(hspace=0.1)
 plt.figure(figsize=(8, 6))
 plt.plot(np.log10(lamb_grid), cv, 'bo')  
 plt.plot(np.log10(lamb_grid_fine), cv_fine, 'bo')  
-plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda})$")
+plt.xlabel(r"$\mathrm{log}_{10}(\mathrm{\lambda_m})$")
 plt.ylabel('CV Error')
 
 digraphstats = Digraphstats(sp_digraph)
