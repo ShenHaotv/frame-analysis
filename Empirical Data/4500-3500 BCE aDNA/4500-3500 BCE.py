@@ -13,7 +13,6 @@ from frame.digraphstats import Digraphstats
 sp_digraph = SpatialDiGraph(genotypes, coord, grid, edges)
 
 lamb_m_warmup = 1e3
-
 lamb_m_grid = np.geomspace(1e-3,1e3,13)[::-1]
 
 cv_errs,node_train_idxs=run_cv(sp_digraph,
